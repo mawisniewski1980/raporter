@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class RaporterNew {
+public class Raporter {
 
     private static final String embeddedMailHtmlStart = "<html>\n\t<body style=\"background-color:#f0f0f0;\">\n\t\t<table cellspacing=\"5\" style=\"width:1024px;\">\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\tDzienny raport z wykonania test&oacute;w automatycznych <br/> %s\n\t\t\t\t</td>\n\t\t\t</tr>\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\t<table cellspacing=\"5\" cellpadding=\"5\" style=\"width:1024px; border: 0px; font-size:12px; font-family:arial,helvetica,sans-serif; font-weight:bold;\">\n";
     private static final String embeddedMailHtmlHeaderMiddle = "\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#9DFF9D; height:40px;\">\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">Liczba test&#xf3;w: %s</td>\n\t\t\t\t\t\t\t\t\t<td style=\"background-color:#ff8181; width:405px;\">Testy pomini&#x119;te: %s</td>\n\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#9DFF9D; height:40px;\">\n\t\t\t\t\t\t\t\t\t\t<td style=\"background-color:#9DFF9D; width:405px;\">Testy poprawne: %s</td>\n\t\t\t\t\t\t\t\t\t<td style=\"background-color:#ff0000; width:405px;\">Testy b&#x142;&#x119;dne: %s</td>\n\t\t\t\t\t\t\t\t\t</table>\n\t\t\t\t</td>\n\t\t\t</tr>\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\t<table cellspacing=\"5\" cellpadding=\"5\" style=\"width:1024px; border: 0px; font-size:12px; font-family:arial,helvetica,sans-serif;\">\n\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#cecccc; color:#000000; height:40px;\">\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">Historyjka</td>\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">Nieudany krok</td>\n\t\t\t\t\t\t\t\t\t</tr>\n";
@@ -26,8 +26,7 @@ public class RaporterNew {
     private int scenariosSuccessful = 0;
 
     public static void main(String[] args) {
-
-        RaporterNew raport = new RaporterNew();
+        Raporter raport = new Raporter();
         try {
             raport.initFolders(args);
             raport.listAllFiles(pathRead, mapStats, ".stats");
@@ -40,6 +39,7 @@ public class RaporterNew {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     private void initFolders(String[] args) throws Exception {
@@ -146,6 +146,7 @@ public class RaporterNew {
         }
     }
 
+    ////////////////////////////////// DTO
     private class RaportDTO {
 
         String testName;
