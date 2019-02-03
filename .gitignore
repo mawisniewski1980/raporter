@@ -1,5 +1,6 @@
 .gradle
 /build/
+/out/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -12,3 +13,39 @@ gradle-app.setting
 
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
+
+*target*
+*.jar
+*.war
+*.ear
+
+# eclipse specific git ignore
+*.pydevproject
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+.idea/
+selenium.iml
+src/main/resources/
+src/test/resources/
+.idea/checkstyle-idea.xml
+.idea/encodings.xml
+.idea/gradle.xml
+.idea/misc.xml
+.idea/workspace.xml
