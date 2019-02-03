@@ -39,7 +39,6 @@ public class Raporter {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     private void initFolders(String[] args) throws Exception {
@@ -121,7 +120,6 @@ public class Raporter {
     }
 
     private String createHtmlRaport(List<RaportDTO> listRaportDTO) {
-        String tmp = null;
         StringBuffer str = new StringBuffer();
         str.append(String.format(embeddedMailHtmlStart, LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE: yyyy-MM-dd HH:mm:ss"))));
         str.append(String.format(embeddedMailHtmlHeaderMiddle, listRaportDTO.size(), scenariosPending, scenariosSuccessful, scenariosFailed));
@@ -129,8 +127,7 @@ public class Raporter {
                 .filter(raport -> raport.getScenariosSuccessful() != 1)
                 .forEach(raport -> str.append(String.format(embeddedMailHtmlMiddle, raport.getTestName(), raport.getMessageFailed())));
         str.append(String.format(embeddedMailHtmlEnd));
-        tmp = str.toString();
-        return tmp;
+        return str.toString();
     }
 
     private void writeHtmlRaport(String raport) throws Exception {
