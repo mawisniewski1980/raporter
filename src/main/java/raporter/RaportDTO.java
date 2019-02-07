@@ -8,7 +8,7 @@ public class RaportDTO {
     int scenariosPending = 0;
     int scenariosSuccessful = 0;
     String link;
-    int takedToRaport = 0;
+    int takenToRaport = 0;
 
     public RaportDTO() {
         this.testName = "testName";
@@ -17,17 +17,17 @@ public class RaportDTO {
         this.scenariosPending = 0;
         this.scenariosSuccessful = 0;
         this.link = "link";
-        this.takedToRaport = 0;
+        this.takenToRaport = 0;
     }
 
-    public RaportDTO(String testName, String messageFailed, int scenariosFailed, int scenariosPending, int scenariosSuccessful, String link, int takedToRaport) {
+    public RaportDTO(String testName, String messageFailed, int scenariosFailed, int scenariosPending, int scenariosSuccessful, String link, int takenToRaport) {
         this.testName = testName;
         this.messageFailed = messageFailed;
         this.scenariosFailed = scenariosFailed;
         this.scenariosPending = scenariosPending;
         this.scenariosSuccessful = scenariosSuccessful;
         this.link = link;
-        this.takedToRaport = takedToRaport;
+        this.takenToRaport = takenToRaport;
     }
 
     public String getTestName() {
@@ -83,11 +83,11 @@ public class RaportDTO {
         this.link = link;
     }
 
-    public int getTakedToRaport() {
-        return takedToRaport;
+    public int getTakenToRaport() {
+        return takenToRaport;
     }
 
-    public void setTakedToRaport(int takedToRaport) {
-        this.takedToRaport = takedToRaport;
+    public void setTakenToRaport(int takenToRaport) {
+        this.takenToRaport = takenToRaport;
     }
 }
