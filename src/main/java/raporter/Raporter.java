@@ -25,7 +25,7 @@ public class Raporter {
     private List<RaportDTO> listRaportDTO = new LinkedList<>();
     private String pathRead;
     private String pathWrite;
-    private String emailFileRaport = "01_EmailReport.html";
+    private String emailFileRaport = "01_EmailReportEmbedded.html";
     private String groupByRegex = "[AFP]{1}\\d{2}(?!\\d)";
     private List<String> categories = new LinkedList<>();
 
