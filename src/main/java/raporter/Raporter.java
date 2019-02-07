@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 public class Raporter {
 
-    private static final String embeddedMailHtmlStart = "<html>\n\t<head><meta charset=\"UTF-8\"></head>\n\t<body style=\"background-color:#f0f0f0;\">\n\t\t<table cellspacing=\"5\" style=\"width:1024px;\">\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\tDzienny raport z wykonania test&oacute;w automatycznych <br/> %s\n\t\t\t\t</td>\n\t\t\t</tr>\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\t<table cellspacing=\"5\" cellpadding=\"5\" style=\"width:1024px; border: 0px; font-size:12px; font-family:arial,helvetica,sans-serif; font-weight:bold;\">\n";
+     private static final String embeddedMailHtmlStart = "<html>\n\t<head><meta charset=\"UTF-8\"></head>\n\t<body style=\"background-color:#f0f0f0;\">\n\t\t<table cellspacing=\"5\" style=\"width:1024px;\">\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\tDzienny raport z wykonania test&oacute;w automatycznych <br/> %s\n\t\t\t\t</td>\n\t\t\t</tr>\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\t<table cellspacing=\"5\" cellpadding=\"5\" style=\"width:1024px; border: 0px; font-size:12px; font-family:arial,helvetica,sans-serif; font-weight:bold;\">\n";
     private static final String embeddedMailHtmlHeaderMiddle = "\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#9DFF9D; height:40px;\">\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">Liczba test&#xf3;w: %s</td>\n\t\t\t\t\t\t\t\t\t<td style=\"background-color:#ff8181; width:405px;\">Testy pomini&#x119;te: %s</td>\n\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#9DFF9D; height:40px;\">\n\t\t\t\t\t\t\t\t\t\t<td style=\"background-color:#9DFF9D; width:405px;\">Testy poprawne: %s</td>\n\t\t\t\t\t\t\t\t\t<td style=\"background-color:#d60000; width:405px;\">Testy b&#x142;&#x119;dne: %s</td>\n\t\t\t\t\t\t\t\t\t</table>\n\t\t\t\t</td>\n\t\t\t</tr>\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\t<table cellspacing=\"5\" cellpadding=\"5\" style=\"width:1024px; border: 0px; font-size:12px; font-family:arial,helvetica,sans-serif;\">\n\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#d60000; color:#000000; height:40px; font-weight: bold;\">\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">Historyjka</td>\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">Nieudany krok</td>\n\t\t\t\t\t\t\t\t\t</tr>\n";
     private static final String embeddedMailHtmlMiddleGroupBy = "\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#d60000; height:40px; font-weight: bold;\">\n\t\t\t\t\t\t\t\t\t\t<td width=\"810px\" colspan=\"2\">%s</td>\n\t\t\t\t\t\t\t\t\t</tr>\n";
     private static final String embeddedMailHtmlMiddle = "\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#cecccc; height:40px;\">\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">%s</td>\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">%s</td>\n\t\t\t\t\t\t\t\t\t</tr>\n";
@@ -177,14 +177,17 @@ public class Raporter {
     }
 
     private String createHtmlRaport() {
+        //reset raportDTO objects
+        this.getListRaportDTO().forEach(raportDTO -> raportDTO.setTakenToRaport(0));
+
         StringBuffer str = new StringBuffer();
         str.append(String.format(embeddedMailHtmlStart, LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE: yyyy-MM-dd HH:mm:ss"))));
         str.append(String.format(embeddedMailHtmlHeaderMiddle, this.getListRaportDTO().size(), scenariosPending, scenariosSuccessful, scenariosFailed));
 
         for(int y = 0; y < this.getListRaportDTO().size(); y++) {
-            if(this.getListRaportDTO().get(y).getScenariosFailed() == 1 && this.getListRaportDTO().get(y).getTakedToRaport() == 0){
+            if(this.getListRaportDTO().get(y).getScenariosFailed() == 1 && this.getListRaportDTO().get(y).getTakenToRaport() == 0){
                 str.append(String.format(embeddedMailHtmlMiddle, this.getListRaportDTO().get(y).getTestName(), this.getListRaportDTO().get(y).getMessageFailed()));
-                this.getListRaportDTO().get(y).setTakedToRaport(1);
+                this.getListRaportDTO().get(y).setTakenToRaport(1);
             }
         }
 
@@ -193,6 +196,9 @@ public class Raporter {
     }
 
     private String createHtmlRaportGroupedBy() {
+        //reset raportDTO objects
+        this.getListRaportDTO().forEach(raportDTO -> raportDTO.setTakenToRaport(0));
+
         StringBuffer str = new StringBuffer();
         str.append(String.format(embeddedMailHtmlStart, LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE: yyyy-MM-dd HH:mm:ss"))));
         str.append(String.format(embeddedMailHtmlHeaderMiddle, this.getListRaportDTO().size(), scenariosPending, scenariosSuccessful, scenariosFailed));
@@ -200,18 +206,18 @@ public class Raporter {
         for(int x = 0; x < this.getCategories().size(); x++) {
             str.append(String.format(embeddedMailHtmlMiddleGroupBy, this.getCategories().get(x)));
             for(int y = 0; y < this.getListRaportDTO().size(); y++) {
-                if(this.getListRaportDTO().get(y).getScenariosFailed() == 1 && this.getListRaportDTO().get(y).getTestName().contains(this.getCategories().get(x)) && this.getListRaportDTO().get(y).getTakedToRaport() == 0){
+                if(this.getListRaportDTO().get(y).getScenariosFailed() == 1 && this.getListRaportDTO().get(y).getTestName().contains(this.getCategories().get(x)) && this.getListRaportDTO().get(y).getTakenToRaport() == 0){
                     str.append(String.format(embeddedMailHtmlMiddle, this.getListRaportDTO().get(y).getTestName(), this.getListRaportDTO().get(y).getMessageFailed()));
-                    this.getListRaportDTO().get(y).setTakedToRaport(1);
+                    this.getListRaportDTO().get(y).setTakenToRaport(1);
                 }
             }
         }
 
         str.append(String.format(embeddedMailHtmlMiddleGroupBy, "INNE"));
         for(int x = 0; x < this.getListRaportDTO().size(); x++) {
-            if(this.getListRaportDTO().get(x).getTakedToRaport() == 0 && this.getListRaportDTO().get(x).getScenariosFailed() == 1) {
+            if(this.getListRaportDTO().get(x).getTakenToRaport() == 0 && this.getListRaportDTO().get(x).getScenariosFailed() == 1) {
                 str.append(String.format(embeddedMailHtmlMiddle, this.getListRaportDTO().get(x).getTestName(), this.getListRaportDTO().get(x).getMessageFailed()));
-                this.getListRaportDTO().get(x).setTakedToRaport(1);
+                this.getListRaportDTO().get(x).setTakenToRaport(1);
             }
         }
 
@@ -231,5 +237,5 @@ public class Raporter {
         } else {
             throw new Exception("Brak danych do raportu");
         }
-    }  
+    }
 }
