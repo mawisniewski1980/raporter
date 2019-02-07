@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 public class Raporter {
 
-    private static final String embeddedMailHtmlStart = "<html>\n\t<head><meta charset=\"UTF-8\"></head>\n\t<body style=\"background-color:#f0f0f0;\">\n\t\t<table cellspacing=\"5\" style=\"width:1024px;\">\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\tDzienny raport z wykonania test&oacute;w automatycznych <br/> %s\n\t\t\t\t</td>\n\t\t\t</tr>\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\t<table cellspacing=\"5\" cellpadding=\"5\" style=\"width:1024px; border: 0px; font-size:12px; font-family:arial,helvetica,sans-serif; font-weight:bold;\">\n";
+        private static final String embeddedMailHtmlStart = "<html>\n\t<head><meta charset=\"UTF-8\"></head>\n\t<body style=\"background-color:#f0f0f0;\">\n\t\t<table cellspacing=\"5\" style=\"width:1024px;\">\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\tDzienny raport z wykonania test&oacute;w automatycznych <br/> %s\n\t\t\t\t</td>\n\t\t\t</tr>\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\t<table cellspacing=\"5\" cellpadding=\"5\" style=\"width:1024px; border: 0px; font-size:12px; font-family:arial,helvetica,sans-serif; font-weight:bold;\">\n";
     private static final String embeddedMailHtmlHeaderMiddle = "\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#9DFF9D; height:40px;\">\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">Liczba test&#xf3;w: %s</td>\n\t\t\t\t\t\t\t\t\t<td style=\"background-color:#ff8181; width:405px;\">Testy pomini&#x119;te: %s</td>\n\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#9DFF9D; height:40px;\">\n\t\t\t\t\t\t\t\t\t\t<td style=\"background-color:#9DFF9D; width:405px;\">Testy poprawne: %s</td>\n\t\t\t\t\t\t\t\t\t<td style=\"background-color:#d60000; width:405px;\">Testy b&#x142;&#x119;dne: %s</td>\n\t\t\t\t\t\t\t\t\t</table>\n\t\t\t\t</td>\n\t\t\t</tr>\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\t<table cellspacing=\"5\" cellpadding=\"5\" style=\"width:1024px; border: 0px; font-size:12px; font-family:arial,helvetica,sans-serif;\">\n\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#d60000; color:#000000; height:40px; font-weight: bold;\">\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">Historyjka</td>\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">Nieudany krok</td>\n\t\t\t\t\t\t\t\t\t</tr>\n";
     private static final String embeddedMailHtmlMiddleGroupBy = "\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#d60000; height:40px; font-weight: bold;\">\n\t\t\t\t\t\t\t\t\t\t<td width=\"810px\" colspan=\"2\">%s</td>\n\t\t\t\t\t\t\t\t\t</tr>\n";
     private static final String embeddedMailHtmlMiddle = "\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#cecccc; height:40px;\">\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">%s</td>\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">%s</td>\n\t\t\t\t\t\t\t\t\t</tr>\n";
@@ -35,8 +35,8 @@ public class Raporter {
 
     public static void main(String[] args) {
 
-      Raporter raport = new Raporter();
-      try {
+        Raporter raport = new Raporter();
+        try {
             raport.initArguments(args);
             raport.listAllFiles(raport.getPathRead(), raport.getMapStats(), ".stats");
             raport.listAllFiles(raport.getPathRead(), raport.getMapHtml(), ".html");
@@ -105,12 +105,12 @@ public class Raporter {
                         String key = filePath.getFileName().toString().substring(0, filePath.getFileName().toString().lastIndexOf('.'));
                         map.put(key, list);
                     } catch (Exception e) {
-                       System.out.printf("Brak plików JBehave do raportu.\n\n" + e.getMessage());
+                        System.out.printf("Brak plików JBehave do raportu.\n\n" + e.getMessage());
                     }
                 }
             });
         } catch (IOException e) {
-           throw new Exception("Brak plików JBehave do raportu.");
+            throw new Exception("Brak plików JBehave do raportu.");
         }
     }
 
@@ -164,14 +164,14 @@ public class Raporter {
         return index;
     }
 
-   private void prepareCategories() {
-       Pattern p = Pattern.compile(this.getGroupByRegex());
-       this.getListRaportDTO().forEach(raportDTO -> {
-         Matcher m = p.matcher(raportDTO.getTestName());
-          if(m.find()) {
-              this.categories.add(m.group());
-          }
-       });
+    private void prepareCategories() {
+        Pattern p = Pattern.compile(this.getGroupByRegex());
+        this.getListRaportDTO().forEach(raportDTO -> {
+            Matcher m = p.matcher(raportDTO.getTestName());
+            if(m.find()) {
+                this.categories.add(m.group());
+            }
+        });
     }
 
     private String createHtmlRaport() {
@@ -180,10 +180,10 @@ public class Raporter {
         str.append(String.format(embeddedMailHtmlHeaderMiddle, this.getListRaportDTO().size(), scenariosPending, scenariosSuccessful, scenariosFailed));
 
         for(int y = 0; y < this.getListRaportDTO().size(); y++) {
-           if(this.getListRaportDTO().get(y).getScenariosFailed() == 1 && this.getListRaportDTO().get(y).getTakedToRaport() == 0){
-               str.append(String.format(embeddedMailHtmlMiddle, this.getListRaportDTO().get(y).getTestName(), this.getListRaportDTO().get(y).getMessageFailed()));
-               this.getListRaportDTO().get(y).setTakedToRaport(1);
-         }
+            if(this.getListRaportDTO().get(y).getScenariosFailed() == 1 && this.getListRaportDTO().get(y).getTakedToRaport() == 0){
+                str.append(String.format(embeddedMailHtmlMiddle, this.getListRaportDTO().get(y).getTestName(), this.getListRaportDTO().get(y).getMessageFailed()));
+                this.getListRaportDTO().get(y).setTakedToRaport(1);
+            }
         }
 
         str.append(String.format(embeddedMailHtmlEnd));
@@ -214,10 +214,13 @@ public class Raporter {
         }
 
         str.append(String.format(embeddedMailHtmlEnd));
+
         return str.toString();
     }
 
     private void writeHtmlRaport(String raport) throws Exception {
+
+        raport = Normalizer.normalize(raport, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
 
         if (raport != null && !raport.isEmpty()) {
             Path path = Paths.get(this.getPathWrite());
