@@ -224,7 +224,7 @@ public class Raporter {
             Files.createDirectories(path);
             path = Paths.get(this.getPathWrite() + "\\" + this.getEmailFileRaport());
             Files.deleteIfExists(path);
-            Files.write(path, raport.getBytes());
+            Files.write(path, raport.getBytes(StandardCharsets.UTF_8));
         } else {
             throw new Exception("Brak danych do raportu");
         }
