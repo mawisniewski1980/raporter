@@ -93,7 +93,7 @@ public class Raporter {
         }
     }
 
-    private void listAllFiles(final String path, Map<String, List<String>> map, final String ext) {
+    private void listAllFiles(final String path, Map<String, List<String>> map, final String ext) throws Exception {
 
         try (Stream<Path> paths = Files.walk(Paths.get(path), 1)) {
             paths.forEach(filePath -> {
@@ -105,12 +105,12 @@ public class Raporter {
                         String key = filePath.getFileName().toString().substring(0, filePath.getFileName().toString().lastIndexOf('.'));
                         map.put(key, list);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                       System.out.printf("Brak plików JBehave do raportu.\n\n" + e.getMessage());
                     }
                 }
             });
         } catch (IOException e) {
-            e.printStackTrace();
+           throw new Exception("Brak plików JBehave do raportu.");
         }
     }
 
