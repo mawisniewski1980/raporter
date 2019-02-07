@@ -146,9 +146,11 @@ public class Raporter {
 
     private int getNumber(List<String> list, String kind) {
         String value = null;
-        Optional<String> opt = list.stream().filter(str -> str.contains(kind)).findFirst();
-        if (opt.isPresent()) {
+        Optional<String> opt = Optional.of(list.stream().filter(str -> str.contains(kind)).findFirst().orElse("0"));
+        if (opt.isPresent() && !opt.get().equals("0")) {
             value = opt.get().substring(opt.get().lastIndexOf("=") + 1);
+        } else {
+            value = opt.get();
         }
         return Integer.parseInt(value);
     }
