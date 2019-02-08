@@ -16,11 +16,11 @@ import java.util.stream.Stream;
 
 public class Raporter {
 
-    private static final String embeddedMailHtmlStart = "<html>\n\t<head><meta charset=\"UTF-8\"></head>\n\t<body style=\"background-color:#f0f0f0;\">\n\t\t<table cellspacing=\"5\" style=\"width:1024px;\">\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\tDzienny raport z wykonania test&oacute;w automatycznych <br/> %s\n\t\t\t\t</td>\n\t\t\t</tr>\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\t<table cellspacing=\"5\" cellpadding=\"5\" style=\"width:1024px; border: 0px; font-size:12px; font-family:arial,helvetica,sans-serif; font-weight:bold;\">\n";
-    private static final String embeddedMailHtmlHeaderMiddle = "\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#9DFF9D; \">\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">Liczba test&#xf3;w: %s</td>\n\t\t\t\t\t\t\t\t\t<td style=\"background-color:#ff8181; width:405px;\">Testy pomini&#x119;te: %s</td>\n\t\t\t\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#9DFF9D; \">\n\t\t\t\t\t\t\t\t\t\t<td style=\"background-color:#9DFF9D; width:405px;\">Testy poprawne: %s</td>\n\t\t\t\t\t\t\t\t\t<td style=\"background-color:#ff0033; width:405px;\">Testy b&#x142;&#x119;dne: %s</td>\n\t\t\t\t\t\t\t\t\t</table>\n\t\t\t\t</td>\n\t\t\t</tr>\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\">\n\t\t\t\t\t<table cellspacing=\"5\" cellpadding=\"5\" style=\"width:1024px; border: 0px; font-size:12px; font-family:arial,helvetica,sans-serif;\">\n\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#ff0033; color:#000000;  font-weight: bold;\">\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">Historyjka</td>\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">Nieudany krok</td>\n\t\t\t\t\t\t\t\t\t</tr>\n";
-    private static final String embeddedMailHtmlMiddleGroupBy = "\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#ff0033;  font-weight: bold;\">\n\t\t\t\t\t\t\t\t\t\t<td width=\"810px\" colspan=\"2\">%s</td>\n\t\t\t\t\t\t\t\t\t</tr>\n";
-    private static final String embeddedMailHtmlMiddle = "\t\t\t\t\t\t\t\t\t<tr style=\"background-color:#cecccc; \">\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">%s</td>\n\t\t\t\t\t\t\t\t\t\t<td width=\"405px\">%s</td>\n\t\t\t\t\t\t\t\t\t</tr>\n";
-    private static final String embeddedMailHtmlEnd = "\n\t\t\t\t\t</table>\n\t\t\t\t</td>\n\t\t\t</tr>\n\t\t\t<tr align=\"right\">\n\t\t\t\t<td style=\"font-size:12px; font-family:arial,helvetica,sans-serif;\">Copyright WAK @ ING</td>\n\t\t\t</tr>\n\t\t</table>\n\t</body>\n</html>";
+    private static final String embeddedMailHtmlStart = "<html>\n\t<head><meta charset=\"UTF-8\"></head>\n\t<body style=\"background-color:#f0f0f0;\">\n\t\t<table cellspacing=\"5\" cellpadding=\"5\" width=\"1024px\">\n\t\t\t<tr align=\"center\">\n\t\t\t\t<td align=\"center\" colspan=\"2\">\n\t\t\t\t\tDzienny raport z wykonania test&oacute;w automatycznych <br/> %s\n\t\t\t\t</td>\n\t\t\t</tr>";
+    private static final String embeddedMailHtmlHeaderMiddle = "\t\t\t<tr align=\"left\">\n\t\t\t\t<td style=\"background-color:#9DFF9D;\" width=\"405px\">Liczba test&#xf3;w: %s</td>\n\t\t\t\t<td style=\"background-color:#ff8181;\">Testy pomini&#x119;te: %s</td>\n\t\t\t</tr>\n\t\t\t<tr align=\"left\">\n\t\t\t\t<td style=\"background-color:#9DFF9D;\">Testy poprawne: %s</td>\n\t\t\t\t<td style=\"background-color:#ff0033;\">Testy b&#x142;&#x119;dne: %s</td>\n\t\t\t</tr>\n\t\t\t<tr style=\"background-color:#ff0033; color:#000000;  font-weight: bold;\">\n\t\t\t\t<td>Historyjka</td>\n\t\t\t\t<td>Nieudany krok</td>\n\t\t\t</tr>";
+    private static final String embeddedMailHtmlMiddleGroupBy = "\t\t\t<tr style=\"background-color:#ff0033; font-weight: bold;\">\n\t\t\t\t<td colspan=\"2\">%s</td>\n\t\t\t</tr>";
+    private static final String embeddedMailHtmlMiddle = "\t\t\t<tr style=\"background-color:#cecccc;\">\n\t\t\t\t<td>%s</td>\n\t\t\t\t<td>%s</td>\n\t\t\t</tr>";
+    private static final String embeddedMailHtmlEnd = "\t\t\t<tr align=\"right\">\n\t\t\t\t<td colspan=\"2\" style=\"font-size:12px; font-family:arial,helvetica,sans-serif;\">Copyright WAK @ ING</td>\n\t\t\t</tr>\n\t\t</table>\n\t</body>\n</html>";
 
     private Map<String, List<String>> mapStats = new TreeMap<>();
     private Map<String, List<String>> mapHtml = new TreeMap<>();
@@ -229,4 +229,5 @@ public class Raporter {
             throw new Exception("Brak danych do raportu");
         }
     }
+    
 }
