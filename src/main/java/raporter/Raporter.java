@@ -28,8 +28,6 @@ public class Raporter {
     private String pathRead;
     private String pathWrite;
     private String emailFileRaport = "01_EmailReportEmbedded.html";
-    private String groupByRegex = "[AFP]{1}\\d{2}(?!\\d)";
-    private List<String> categories = new LinkedList<>();
 
     private int scenariosFailed = 0;
     private int scenariosPending = 0;
@@ -45,7 +43,6 @@ public class Raporter {
             raport.agregateStats();
             raport.setDTOBasedOnStatsMap();
             raport.setDTOBasedOnHtmlMap();
-            raport.prepareCategories();
             //raport.writeHtmlRaport(raport.createHtmlRaport());
             raport.writeHtmlRaport(raport.createHtmlRaportGroupedBy());
 
@@ -72,14 +69,6 @@ public class Raporter {
 
     private String getPathWrite() {
         return pathWrite;
-    }
-
-    private String getGroupByRegex() {
-        return groupByRegex;
-    }
-
-    private List<String> getCategories() {
-        return categories.stream().sorted().distinct().collect(Collectors.toList());
     }
 
     private String getEmailFileRaport() {
@@ -117,31 +106,42 @@ public class Raporter {
     }
 
     private void agregateStats() {
-        this.getMapStats().forEach((k, v) -> {
+        this.mapStats.forEach((k, v) -> {
             if (!k.equalsIgnoreCase("BeforeStories") && !k.equalsIgnoreCase("AfterStories")) {
-                this.scenariosSuccessful = scenariosSuccessful + getNumber(v, "scenariosSuccessful");
-                this.scenariosFailed = scenariosFailed + getNumber(v, "scenariosFailed");
-                this.scenariosPending = scenariosPending + getNumber(v, "scenariosPending");
+                this.scenariosSuccessful = scenariosSuccessful + this.getNumber(v, "scenariosSuccessful");
+                this.scenariosFailed = scenariosFailed + this.getNumber(v, "scenariosFailed");
+                this.scenariosPending = scenariosPending + this.getNumber(v, "scenariosPending");
             }
         });
     }
 
     private void setDTOBasedOnStatsMap() {
-        this.getMapStats().forEach((k, v) -> {
+        this.mapStats.forEach((k, v) -> {
             if (!k.equalsIgnoreCase("BeforeStories") && !k.equalsIgnoreCase("AfterStories")) {
-                this.listRaportDTO.add(new RaportDTO(k, "failText", getNumber(v, "scenariosFailed"), getNumber(v, "scenariosPending"), getNumber(v, "scenariosSuccessful"), "link", 0));
+                this.listRaportDTO.add(new RaportDTO(k, "failText", this.getNumber(v, "scenariosFailed"), this.getNumber(v, "scenariosPending"), this.getNumber(v, "scenariosSuccessful"), "link", 0));
             }
         });
     }
 
     private void setDTOBasedOnHtmlMap() {
-        this.getMapHtml().forEach((k, v) -> {
+        this.mapHtml.forEach((k, v) -> {
             if (!k.equalsIgnoreCase("BeforeStories") && !k.equalsIgnoreCase("AfterStories")) {
                 String failText = v.get(getIdMessageFailed(v, "(FAILED)"));
                 String normalize =  Normalizer.normalize(failText, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
                 this.getRaportDTO(k).setMessageFailed(normalize);
             }
         });
+    }
+
+    private List<String> getCategories() {
+        //return categories.stream().sorted().distinct().collect(Collectors.toList());
+        return this.getListRaportDTO()
+                .stream()
+                .filter(raportDTO -> raportDTO.getScenariosFailed()==1)
+                .map(raportDTO -> raportDTO.getTestCategory())
+                .sorted()
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     private RaportDTO getRaportDTO(String testName) {
@@ -168,22 +168,12 @@ public class Raporter {
         return index;
     }
 
-    private void prepareCategories() {
-        Pattern p = Pattern.compile(this.getGroupByRegex());
-        this.getListRaportDTO().forEach(raportDTO -> {
-            Matcher m = p.matcher(raportDTO.getTestName());
-            if(m.find()) {
-                this.categories.add(m.group());
-            }
-        });
-    }
-
     private String createHtmlRaport() {
         //reset raportDTO objects
         this.getListRaportDTO().forEach(raportDTO -> raportDTO.setTakenToRaport(0));
 
         StringBuffer str = new StringBuffer();
-        str.append(String.format(embeddedMailHtmlStart, LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE: yyyy-MM-dd HH:mm:ss"))));
+        str.append(String.format(embeddedMailHtmlStart, LocalDateTime.now().format(DateTimeFormatter.ofPattern("EE, yyyy-MM-dd HH:mm:ss"))));
         str.append(String.format(embeddedMailHtmlHeaderMiddle, this.getListRaportDTO().size(), scenariosPending, scenariosSuccessful, scenariosFailed));
 
         for(int y = 0; y < this.getListRaportDTO().size(); y++) {
@@ -202,11 +192,11 @@ public class Raporter {
         this.getListRaportDTO().forEach(raportDTO -> raportDTO.setTakenToRaport(0));
 
         StringBuffer str = new StringBuffer();
-        str.append(String.format(embeddedMailHtmlStart, LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE: yyyy-MM-dd HH:mm:ss"))));
+        str.append(String.format(embeddedMailHtmlStart, LocalDateTime.now().format(DateTimeFormatter.ofPattern("EE, yyyy-MM-dd HH:mm:ss"))));
         str.append(String.format(embeddedMailHtmlHeaderMiddle, this.getListRaportDTO().size(), scenariosPending, scenariosSuccessful, scenariosFailed));
 
         for(int x = 0; x < this.getCategories().size(); x++) {
-            str.append(String.format(embeddedMailHtmlMiddleGroupBy, this.getCategories().get(x)));
+            str.append(String.format(embeddedMailHtmlMiddleGroupBy, this.getCategories().get(x).equals("XXX") ? "INNE" : this.getCategories().get(x)));
             for(int y = 0; y < this.getListRaportDTO().size(); y++) {
                 if(this.getListRaportDTO().get(y).getScenariosFailed() == 1 && this.getListRaportDTO().get(y).getTestName().contains(this.getCategories().get(x)) && this.getListRaportDTO().get(y).getTakenToRaport() == 0){
                     str.append(String.format(embeddedMailHtmlMiddle, this.getListRaportDTO().get(y).getTestName(), this.getListRaportDTO().get(y).getMessageFailed()));
@@ -215,7 +205,6 @@ public class Raporter {
             }
         }
 
-        str.append(String.format(embeddedMailHtmlMiddleGroupBy, "INNE"));
         for(int x = 0; x < this.getListRaportDTO().size(); x++) {
             if(this.getListRaportDTO().get(x).getTakenToRaport() == 0 && this.getListRaportDTO().get(x).getScenariosFailed() == 1) {
                 str.append(String.format(embeddedMailHtmlMiddle, this.getListRaportDTO().get(x).getTestName(), this.getListRaportDTO().get(x).getMessageFailed()));
