@@ -2,23 +2,15 @@ package raporter;
 
 public class RaportDTO {
 
-    String testName;
+   String testName;
     String messageFailed;
-    int scenariosFailed = 0;
-    int scenariosPending = 0;
-    int scenariosSuccessful = 0;
+    int scenariosFailed;
+    int scenariosPending;
+    int scenariosSuccessful;
     String link;
-    int takenToRaport = 0;
+    int takenToRaport;
+    String testCategory = "XXX";
 
-    public RaportDTO() {
-        this.testName = "testName";
-        this.messageFailed = "messageFailed";
-        this.scenariosFailed = 0;
-        this.scenariosPending = 0;
-        this.scenariosSuccessful = 0;
-        this.link = "link";
-        this.takenToRaport = 0;
-    }
 
     public RaportDTO(String testName, String messageFailed, int scenariosFailed, int scenariosPending, int scenariosSuccessful, String link, int takenToRaport) {
         this.testName = testName;
@@ -38,12 +30,8 @@ public class RaportDTO {
         return getTestName().substring(0, getTestName().lastIndexOf('.')) + ext;
     }
 
-    public void setTestName(String testName) {
-        this.testName = testName;
-    }
-
     public String getMessageFailed() {
-        messageFailed = messageFailed.replace("class=\"message failed\"", "style=\"color: #ff0000;\"");
+        messageFailed = messageFailed.replace("class=\"message failed\"", "style=\"color: #ff0033;\"");
         return messageFailed;
     }
 
@@ -89,5 +77,15 @@ public class RaportDTO {
 
     public void setTakenToRaport(int takenToRaport) {
         this.takenToRaport = takenToRaport;
+    }
+
+    public String getTestCategory() {
+        String groupByRegex = "[AFP]{1}\\d{2}(?!\\d)";
+        Pattern pattern = Pattern.compile(groupByRegex);
+        Matcher matcher = pattern.matcher(this.getTestName());
+        if(matcher.find()) {
+            this.testCategory = matcher.group();
+        }
+        return this.testCategory;
     }
 }
