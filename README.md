@@ -13,4 +13,5 @@
  Results are ordered and gruped by regex "[AFP]{1}\\d{2}(?!\\d)", e.g. 01_TestName_A13.. , 02_TestName_A26
  
  # For what?
-  I used this raport file on Jenkins - Editable Email Notification to add this as emdded content in email.
+  I used this raport file on Jenkins - Editable Email Notification plugin to add emdded content in email.
+  e.g. ${FILE,path="/raport/01_EmailReportEmbedded.html"}
