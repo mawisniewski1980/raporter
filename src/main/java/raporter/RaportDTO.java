@@ -2,14 +2,14 @@ package raporter;
 
 public class RaportDTO {
 
-   String testName;
-    String messageFailed;
-    int scenariosFailed;
-    int scenariosPending;
-    int scenariosSuccessful;
-    String link;
-    int takenToRaport;
-    String testCategory = "XXX";
+   private String testName;
+   private String messageFailed;
+   private int scenariosFailed;
+   private int scenariosPending;
+   private int scenariosSuccessful;
+   private String link;
+   private int takenToRaport;
+   private String testCategory = "XXX";
 
 
     public RaportDTO(String testName, String messageFailed, int scenariosFailed, int scenariosPending, int scenariosSuccessful, String link, int takenToRaport) {
@@ -43,26 +43,6 @@ public class RaportDTO {
         return scenariosFailed;
     }
 
-    public void setScenariosFailed(int scenariosFailed) {
-        this.scenariosFailed = scenariosFailed;
-    }
-
-    public int getScenariosPending() {
-        return scenariosPending;
-    }
-
-    public void setScenariosPending(int scenariosPending) {
-        this.scenariosPending = scenariosPending;
-    }
-
-    public int getScenariosSuccessful() {
-        return scenariosSuccessful;
-    }
-
-    public void setScenariosSuccessful(int scenariosSuccessful) {
-        this.scenariosSuccessful = scenariosSuccessful;
-    }
-
     public String getLink() {
         return link;
     }
@@ -80,8 +60,7 @@ public class RaportDTO {
     }
 
     public String getTestCategory() {
-        String groupByRegex = "[AFP]{1}\\d{2}(?!\\d)";
-        Pattern pattern = Pattern.compile(groupByRegex);
+        Pattern pattern = Pattern.compile("[AFP]{1}\\d{2}(?!\\d)");
         Matcher matcher = pattern.matcher(this.getTestName());
         if(matcher.find()) {
             this.testCategory = matcher.group();
