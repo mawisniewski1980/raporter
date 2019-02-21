@@ -22,16 +22,21 @@ public class Raporter {
     private static final String embeddedMailHtmlMiddle = "\t\t\t<tr style=\"background-color:#cecccc;\">\n\t\t\t\t<td>%s</td>\n\t\t\t\t<td>%s</td>\n\t\t\t</tr>";
     private static final String embeddedMailHtmlEnd = "\t\t\t<tr align=\"right\">\n\t\t\t\t<td colspan=\"2\" style=\"font-size:12px; font-family:arial,helvetica,sans-serif;\">Copyright WAK @ ING</td>\n\t\t\t</tr>\n\t\t</table>\n\t</body>\n</html>";
 
-    private Map<String, List<String>> mapStats = new TreeMap<>();
-    private Map<String, List<String>> mapHtml = new TreeMap<>();
-    private List<RaportDTO> listRaportDTO = new LinkedList<>();
+    private static final String SUCCESSFUL = "scenariosSuccessful";
+    private static final String FAILED = "scenariosFailed";
+    private static final String PENDING = "scenariosPending";
+    private static final String EMAIL_FILE_RAPORT = "01_EmailReportEmbedded.html";
+
     private String pathRead;
     private String pathWrite;
-    private String emailFileRaport = "01_EmailReportEmbedded.html";
 
+    private int scenariosSuccessful = 0;
     private int scenariosFailed = 0;
     private int scenariosPending = 0;
-    private int scenariosSuccessful = 0;
+
+    private Map<String, List<String>> mapStats = new TreeMap<>();
+    private Map<String, List<String>> mapHtml = new TreeMap<>();
+    private List<RaportDTO> listRaportDTO = new ArrayList<>();
 
     public static void main(String[] args) {
 
@@ -43,7 +48,10 @@ public class Raporter {
             raport.agregateStats();
             raport.setDTOBasedOnStatsMap();
             raport.setDTOBasedOnHtmlMap();
-            //raport.writeHtmlRaport(raport.createHtmlRaport());
+
+            // metoda stworzy posortowany raport, jednak bez grupowania wyników
+            // raport.writeHtmlRaport(raport.createHtmlRaport());
+
             raport.writeHtmlRaport(raport.createHtmlRaportGroupedBy());
 
         } catch (Exception e) {
@@ -71,10 +79,6 @@ public class Raporter {
         return pathWrite;
     }
 
-    private String getEmailFileRaport() {
-        return emailFileRaport;
-    }
-
     private void initArguments(String[] args) throws Exception {
         try {
             this.pathRead = args[0];
@@ -84,19 +88,19 @@ public class Raporter {
         }
     }
 
-    private void listAllFiles(final String path, Map<String, List<String>> map, final String ext) throws Exception {
+    private void listAllFiles(final String path, Map<String, List<String>> mapAllFiles, final String fileExtension) throws Exception {
 
         try (Stream<Path> paths = Files.walk(Paths.get(path), 1)) {
             paths.forEach(filePath -> {
-                if (Files.isRegularFile(filePath) && filePath.toString().endsWith(ext)) {
+                if (Files.isRegularFile(filePath) && filePath.toString().endsWith(fileExtension)) {
                     try {
-                        ArrayList<String> list = new ArrayList();
-                        list.addAll(Files.readAllLines(filePath));
-                        Collections.sort(list);
+                        ArrayList<String> tempList = new ArrayList<>();
+                        tempList.addAll(Files.readAllLines(filePath));
+                        Collections.sort(tempList);
                         String key = filePath.getFileName().toString().substring(0, filePath.getFileName().toString().lastIndexOf('.'));
-                        map.put(key, list);
+                        mapAllFiles.put(key, tempList);
                     } catch (Exception e) {
-                        System.out.printf("Brak plików JBehave do raportu.\n\n" + e.getMessage());
+                        System.out.println("Brak plików JBehave do raportu.\n\n" + e.getMessage());
                     }
                 }
             });
@@ -108,9 +112,9 @@ public class Raporter {
     private void agregateStats() {
         this.mapStats.forEach((k, v) -> {
             if (!k.equalsIgnoreCase("BeforeStories") && !k.equalsIgnoreCase("AfterStories")) {
-                this.scenariosSuccessful = scenariosSuccessful + this.getNumber(v, "scenariosSuccessful");
-                this.scenariosFailed = scenariosFailed + this.getNumber(v, "scenariosFailed");
-                this.scenariosPending = scenariosPending + this.getNumber(v, "scenariosPending");
+                this.scenariosSuccessful = scenariosSuccessful + this.getNumber(v, this.SUCCESSFUL);
+                this.scenariosFailed = scenariosFailed + this.getNumber(v, this.FAILED);
+                this.scenariosPending = scenariosPending + this.getNumber(v, this.PENDING);
             }
         });
     }
@@ -118,7 +122,7 @@ public class Raporter {
     private void setDTOBasedOnStatsMap() {
         this.mapStats.forEach((k, v) -> {
             if (!k.equalsIgnoreCase("BeforeStories") && !k.equalsIgnoreCase("AfterStories")) {
-                this.listRaportDTO.add(new RaportDTO(k, "failText", this.getNumber(v, "scenariosFailed"), this.getNumber(v, "scenariosPending"), this.getNumber(v, "scenariosSuccessful"), "link", 0));
+                this.listRaportDTO.add(new RaportDTO(k, "failText", this.getNumber(v, this.FAILED), this.getNumber(v, this.PENDING), this.getNumber(v, this.SUCCESSFUL), "link", 0));
             }
         });
     }
@@ -127,18 +131,17 @@ public class Raporter {
         this.mapHtml.forEach((k, v) -> {
             if (!k.equalsIgnoreCase("BeforeStories") && !k.equalsIgnoreCase("AfterStories")) {
                 String failText = v.get(getIdMessageFailed(v, "(FAILED)"));
-                String normalize =  Normalizer.normalize(failText, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+                String normalize = replaceMultiple(failText, "ąćęłńóśźżĄĆĘŁŃÓŚĆŹŻ", "acelnoszzACELNOSZZ");
                 this.getRaportDTO(k).setMessageFailed(normalize);
             }
         });
     }
 
     private List<String> getCategories() {
-        //return categories.stream().sorted().distinct().collect(Collectors.toList());
         return this.getListRaportDTO()
                 .stream()
-                .filter(raportDTO -> raportDTO.getScenariosFailed()==1)
-                .map(raportDTO -> raportDTO.getTestCategory())
+                .filter(raportDTO -> raportDTO.getScenariosFailed() == 1)
+                .map(RaportDTO::getTestCategory)
                 .sorted()
                 .distinct()
                 .collect(Collectors.toList());
@@ -172,62 +175,74 @@ public class Raporter {
         //reset raportDTO objects
         this.getListRaportDTO().forEach(raportDTO -> raportDTO.setTakenToRaport(0));
 
-        StringBuffer str = new StringBuffer();
-        str.append(String.format(embeddedMailHtmlStart, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-        str.append(String.format(embeddedMailHtmlHeaderMiddle, this.getListRaportDTO().size(), scenariosPending, scenariosSuccessful, scenariosFailed));
+        StringBuffer stringHtmlRaport = new StringBuffer();
+        stringHtmlRaport.append(String.format(embeddedMailHtmlStart, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+        stringHtmlRaport.append(String.format(embeddedMailHtmlHeaderMiddle, this.getListRaportDTO().size(), scenariosPending, scenariosSuccessful, scenariosFailed));
 
-        for(int y = 0; y < this.getListRaportDTO().size(); y++) {
-            if(this.getListRaportDTO().get(y).getScenariosFailed() == 1 && this.getListRaportDTO().get(y).getTakenToRaport() == 0){
-                str.append(String.format(embeddedMailHtmlMiddle, this.getListRaportDTO().get(y).getTestName(), this.getListRaportDTO().get(y).getMessageFailed()));
-                this.getListRaportDTO().get(y).setTakenToRaport(1);
+        for(int i = 0; i < this.getListRaportDTO().size(); i++) {
+            if(this.getListRaportDTO().get(i).getScenariosFailed() == 1 && this.getListRaportDTO().get(i).getTakenToRaport() == 0){
+                stringHtmlRaport.append(String.format(embeddedMailHtmlMiddle, this.getListRaportDTO().get(i).getTestName(), this.getListRaportDTO().get(i).getMessageFailed()));
+                this.getListRaportDTO().get(i).setTakenToRaport(1);
             }
         }
 
-        str.append(String.format(embeddedMailHtmlEnd));
-        return str.toString();
+        stringHtmlRaport.append(String.format(embeddedMailHtmlEnd));
+        return stringHtmlRaport.toString();
     }
 
     private String createHtmlRaportGroupedBy() {
         //reset raportDTO objects
         this.getListRaportDTO().forEach(raportDTO -> raportDTO.setTakenToRaport(0));
 
-        StringBuffer str = new StringBuffer();
-        str.append(String.format(embeddedMailHtmlStart, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-        str.append(String.format(embeddedMailHtmlHeaderMiddle, this.getListRaportDTO().size(), scenariosPending, scenariosSuccessful, scenariosFailed));
+        StringBuffer stringHtmlRaport = new StringBuffer();
+        stringHtmlRaport.append(String.format(embeddedMailHtmlStart, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
+        stringHtmlRaport.append(String.format(embeddedMailHtmlHeaderMiddle, this.getListRaportDTO().size(), scenariosPending, scenariosSuccessful, scenariosFailed));
 
-        for(int x = 0; x < this.getCategories().size(); x++) {
-            str.append(String.format(embeddedMailHtmlMiddleGroupBy, this.getCategories().get(x).equals("XXX") ? "INNE" : this.getCategories().get(x)));
-            for(int y = 0; y < this.getListRaportDTO().size(); y++) {
-                if(this.getListRaportDTO().get(y).getScenariosFailed() == 1 && this.getListRaportDTO().get(y).getTestName().contains(this.getCategories().get(x)) && this.getListRaportDTO().get(y).getTakenToRaport() == 0){
-                    str.append(String.format(embeddedMailHtmlMiddle, this.getListRaportDTO().get(y).getTestName(), this.getListRaportDTO().get(y).getMessageFailed()));
-                    this.getListRaportDTO().get(y).setTakenToRaport(1);
+        for(int i = 0; i < this.getCategories().size(); i++) {
+            stringHtmlRaport.append(String.format(embeddedMailHtmlMiddleGroupBy, this.getCategories().get(i).equals("XXX") ? "INNE" : this.getCategories().get(i)));
+            for(int j = 0; j < this.getListRaportDTO().size(); j++) {
+                if(this.getListRaportDTO().get(j).getScenariosFailed() == 1 && this.getListRaportDTO().get(j).getTestName().contains(this.getCategories().get(i)) && this.getListRaportDTO().get(j).getTakenToRaport() == 0){
+                    stringHtmlRaport.append(String.format(embeddedMailHtmlMiddle, this.getListRaportDTO().get(j).getTestName(), this.getListRaportDTO().get(j).getMessageFailed()));
+                    this.getListRaportDTO().get(j).setTakenToRaport(1);
                 }
             }
         }
 
-        for(int x = 0; x < this.getListRaportDTO().size(); x++) {
-            if(this.getListRaportDTO().get(x).getTakenToRaport() == 0 && this.getListRaportDTO().get(x).getScenariosFailed() == 1) {
-                str.append(String.format(embeddedMailHtmlMiddle, this.getListRaportDTO().get(x).getTestName(), this.getListRaportDTO().get(x).getMessageFailed()));
-                this.getListRaportDTO().get(x).setTakenToRaport(1);
+        for(int i = 0; i < this.getListRaportDTO().size(); i++) {
+            if(this.getListRaportDTO().get(i).getTakenToRaport() == 0 && this.getListRaportDTO().get(i).getScenariosFailed() == 1) {
+                stringHtmlRaport.append(String.format(embeddedMailHtmlMiddle, this.getListRaportDTO().get(i).getTestName(), this.getListRaportDTO().get(i).getMessageFailed()));
+                this.getListRaportDTO().get(i).setTakenToRaport(1);
             }
         }
 
-        str.append(String.format(embeddedMailHtmlEnd));
+        stringHtmlRaport.append(String.format(embeddedMailHtmlEnd));
 
-        return str.toString();
+        return stringHtmlRaport.toString();
     }
 
     private void writeHtmlRaport(String raport) throws Exception {
 
         if (raport != null && !raport.isEmpty()) {
-            Path path = Paths.get(this.getPathWrite());
+            Path path = Paths.get(this.pathWrite);
             Files.createDirectories(path);
-            path = Paths.get(this.getPathWrite() + "\\" + this.getEmailFileRaport());
+            path = Paths.get(this.getPathWrite() + "\\" + this.EMAIL_FILE_RAPORT);
             Files.deleteIfExists(path);
             Files.write(path, raport.getBytes(StandardCharsets.UTF_8));
         } else {
             throw new Exception("Brak danych do raportu");
         }
+    }
+
+    private static String replaceMultiple(String mainText, String toBeReplaces, String forWhichWillBeReplaced) {
+        List<String> toBeReplacesList = Arrays.asList(toBeReplaces.split(""));
+        List<String> forWhichWillBeReplacedList = Arrays.asList(forWhichWillBeReplaced.split(""));
+        for (String textChar : toBeReplacesList) {
+            if (mainText.contains(textChar)) {
+                int inCharIndex = toBeReplaces.indexOf(textChar);
+                mainText = mainText.replace(textChar, forWhichWillBeReplacedList.get(inCharIndex));
+            }
+        }
+        return mainText;
     }
     
 }
