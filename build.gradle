@@ -1,0 +1,18 @@
+apply plugin: 'java-library'
+
+compileJava {options.encoding = "UTF-8"}
+
+repositories {
+   mavenCentral()
+}
+
+dependencies {
+
+}
+
+jar {
+   manifest {
+      attributes 'Main-Class': 'raporter.Raporter'
+   }
+}
+
