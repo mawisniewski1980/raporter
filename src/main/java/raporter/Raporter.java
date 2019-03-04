@@ -48,10 +48,7 @@ public class Raporter {
             raport.agregateStats();
             raport.setDTOBasedOnStatsMap();
             raport.setDTOBasedOnHtmlMap();
-
-            // metoda stworzy posortowany raport, jednak bez grupowania wyników
             // raport.writeHtmlRaport(raport.createHtmlRaport());
-
             raport.writeHtmlRaport(raport.createHtmlRaportGroupedBy());
 
         } catch (Exception e) {
@@ -79,16 +76,16 @@ public class Raporter {
         return pathWrite;
     }
 
-    private void initArguments(String[] args) throws Exception {
+    private void initArguments(String[] args) throws ArrayIndexOutOfBoundsException {
         try {
             this.pathRead = args[0];
             this.pathWrite = this.pathRead.substring(0, this.pathRead.lastIndexOf("\\")) + "\\" + "raport";
         } catch (ArrayIndexOutOfBoundsException | NullPointerException ex) {
-            throw new Exception("Brak parametru, przekaz pelna sciezke do raportu, folderu jbehave (...jenkins\\reporter\\jbehave)");
+            throw new ArrayIndexOutOfBoundsException("Brak parametru, przekaz pelna sciezke do raportu, folderu jbehave (...jenkins\\reporter\\jbehave)");
         }
     }
 
-    private void listAllFiles(final String path, Map<String, List<String>> mapAllFiles, final String fileExtension) throws Exception {
+    private void listAllFiles(final String path, Map<String, List<String>> mapAllFiles, final String fileExtension) throws IOException {
 
         try (Stream<Path> paths = Files.walk(Paths.get(path), 1)) {
             paths.forEach(filePath -> {
@@ -99,13 +96,13 @@ public class Raporter {
                         Collections.sort(tempList);
                         String key = filePath.getFileName().toString().substring(0, filePath.getFileName().toString().lastIndexOf('.'));
                         mapAllFiles.put(key, tempList);
-                    } catch (Exception e) {
+                    } catch (IOException e) {
                         System.out.println("Brak plików JBehave do raportu.\n\n" + e.getMessage());
                     }
                 }
             });
         } catch (IOException e) {
-            throw new Exception("Brak plików JBehave do raportu.");
+            throw new IOException("Brak plików JBehave do raportu.");
         }
     }
 
@@ -131,8 +128,7 @@ public class Raporter {
         this.mapHtml.forEach((k, v) -> {
             if (!k.equalsIgnoreCase("BeforeStories") && !k.equalsIgnoreCase("AfterStories")) {
                 String failText = v.get(getIdMessageFailed(v, "(FAILED)"));
-                String normalize = replaceMultiple(failText, "ąćęłńóśźżĄĆĘŁŃÓŚĆŹŻ", "acelnoszzACELNOSZZ");
-                this.getRaportDTO(k).setMessageFailed(normalize);
+                this.getRaportDTO(k).setMessageFailed(failText);
             }
         });
     }
@@ -220,7 +216,7 @@ public class Raporter {
         return stringHtmlRaport.toString();
     }
 
-    private void writeHtmlRaport(String raport) throws Exception {
+    private void writeHtmlRaport(String raport) throws IOException {
 
         if (raport != null && !raport.isEmpty()) {
             Path path = Paths.get(this.pathWrite);
@@ -229,20 +225,8 @@ public class Raporter {
             Files.deleteIfExists(path);
             Files.write(path, raport.getBytes(StandardCharsets.UTF_8));
         } else {
-            throw new Exception("Brak danych do raportu");
+            throw new IOException("Brak danych do raportu");
         }
-    }
-
-    private static String replaceMultiple(String mainText, String toBeReplaces, String forWhichWillBeReplaced) {
-        List<String> toBeReplacesList = Arrays.asList(toBeReplaces.split(""));
-        List<String> forWhichWillBeReplacedList = Arrays.asList(forWhichWillBeReplaced.split(""));
-        for (String textChar : toBeReplacesList) {
-            if (mainText.contains(textChar)) {
-                int inCharIndex = toBeReplaces.indexOf(textChar);
-                mainText = mainText.replace(textChar, forWhichWillBeReplacedList.get(inCharIndex));
-            }
-        }
-        return mainText;
     }
     
 }
