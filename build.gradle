@@ -1,4 +1,6 @@
-apply plugin: 'java-library'
+plugins {
+   id 'java'
+}
 
 compileJava {options.encoding = "UTF-8"}
 
@@ -16,3 +18,4 @@ jar {
    }
 }
 
+jar.manifest.writeTo("$buildDir/manifest.mf")

@@ -25,7 +25,7 @@ public class Raporter {
     private static final String SUCCESSFUL = "scenariosSuccessful";
     private static final String FAILED = "scenariosFailed";
     private static final String PENDING = "scenariosPending";
-    private static final String EMAIL_FILE_RAPORT = "01_EmailReportEmbedded.html";
+    private static final String EMAIL_FILE_RAPORT = "emailEmbedded.html";
 
     private String pathRead;
     private String pathWrite;
