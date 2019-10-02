@@ -260,9 +260,9 @@ public class Raporter {
 
         StringBuffer stringChartRaport = new StringBuffer();
         stringChartRaport.append(String.format(chartMailHtmlStart, getListRaportDTO().size()));
-        if(success > 0) stringChartRaport.append(String.format(chartMailHtmlSuccessful, success, success));
-        if(failed > 0) stringChartRaport.append(String.format(chartMailHtmlFailed, failed, failed));
-        if(pending > 0) stringChartRaport.append(String.format(chartMailHtmlPending, pending, pending));
+        if(success > 0) stringChartRaport.append(String.format(chartMailHtmlSuccessful, success, scenariosSuccessful));
+        if(failed > 0) stringChartRaport.append(String.format(chartMailHtmlFailed, failed, scenariosFailed));
+        if(pending > 0) stringChartRaport.append(String.format(chartMailHtmlPending, pending, scenariosPending));
         stringChartRaport.append(chartMailHtmlEnd);
 
         return stringChartRaport.toString();
