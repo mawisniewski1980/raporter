@@ -22,12 +22,11 @@ public class Raporter {
     private static final String embeddedMailHtmlMiddle = "\t\t\t<tr style=\"background-color:#cecccc;\">\n\t\t\t\t<td>%s</td>\n\t\t\t\t<td>%s</td>\n\t\t\t</tr>";
     private static final String embeddedMailHtmlEnd = "\t\t\t<tr align=\"right\">\n\t\t\t\t<td colspan=\"2\" style=\"font-size:12px; font-family:arial,helvetica,sans-serif;\">Copyright WAK @ ING</td>\n\t\t\t</tr>\n\t\t</table>\n\t</body>\n</html>";
 
-    private static final String chartMailHtmlStart = "<html><head><meta charset=\"UTF-8\"></head>\n<body>\n<div style=\"width:100%%\">Liczba test&#xf3;w: %s <br>\n";
-    private static final String chartMailHtmlSuccessful = "<div style=\"width:%s%%; background-color:#9DFF9D; float: left;\"><p style=\"padding: 1px;\">Testy poprawne: %s</p></div>\n";
-    private static final String chartMailHtmlFailed = "<div style=\"width:%s%%; background-color:#ff0033; float: left;\"><p style=\"padding: 1px;\">Testy b&#x142;&#x119;dne: %s</p></div>\n";
-    private static final String chartMailHtmlPending = "<div style=\"width:%s%%; background-color:#FF8C00; float: left;\"><p style=\"padding: 1px;\">Testy pomini&#x119;te: %s</p></div>\n";
-    private static final String chartMailHtmlEnd = "</div>\n</body></html>";
-    
+    private static final String chartMailHtmlStart = "<html><head><meta charset=\"UTF-8\"></head><body><table width=\"100%\">";
+    private static final String chartMailHtmlAllPending = "<tr><td>Liczba test&#xf3;w: %s (w tym pomini&#x119;te: %s)</td></tr>";
+    private static final String chartMailHtmlSuccessfulFailed = "<table width=\"100%%\"><tr><td width=\"%s%%\" bgcolor=\"#9DFF9D\">Testy poprawne: %s</td><td width=\"%s%%\" bgcolor=\"#ff0033\">Testy b&#x142;&#x119;dne: %s</td></tr></table>\n";
+    private static final String chartMailHtmlEnd = "</table></body></html>";
+ 
     private static final String SUCCESSFUL = "scenariosSuccessful";
     private static final String FAILED = "scenariosFailed";
     private static final String PENDING = "scenariosPending";
@@ -256,13 +255,11 @@ public class Raporter {
 
         int success = scenariosSuccessful*100/getListRaportDTO().size();
         int failed = scenariosFailed*100/getListRaportDTO().size();
-        int pending = scenariosPending*100/getListRaportDTO().size();
 
         StringBuffer stringChartRaport = new StringBuffer();
-        stringChartRaport.append(String.format(chartMailHtmlStart, getListRaportDTO().size()));
-        if(success > 0) stringChartRaport.append(String.format(chartMailHtmlSuccessful, success, scenariosSuccessful));
-        if(failed > 0) stringChartRaport.append(String.format(chartMailHtmlFailed, failed, scenariosFailed));
-        if(pending > 0) stringChartRaport.append(String.format(chartMailHtmlPending, pending, scenariosPending));
+        stringChartRaport.append(chartMailHtmlStart);
+        stringChartRaport.append(String.format(chartMailHtmlAllPending, getListRaportDTO().size(), scenariosPending));
+        if(success > 0) stringChartRaport.append(String.format(chartMailHtmlSuccessfulFailed, success, scenariosSuccessful, failed, scenariosFailed));
         stringChartRaport.append(chartMailHtmlEnd);
 
         return stringChartRaport.toString();
