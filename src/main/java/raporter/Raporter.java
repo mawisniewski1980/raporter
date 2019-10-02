@@ -22,10 +22,18 @@ public class Raporter {
     private static final String embeddedMailHtmlMiddle = "\t\t\t<tr style=\"background-color:#cecccc;\">\n\t\t\t\t<td>%s</td>\n\t\t\t\t<td>%s</td>\n\t\t\t</tr>";
     private static final String embeddedMailHtmlEnd = "\t\t\t<tr align=\"right\">\n\t\t\t\t<td colspan=\"2\" style=\"font-size:12px; font-family:arial,helvetica,sans-serif;\">Copyright WAK @ ING</td>\n\t\t\t</tr>\n\t\t</table>\n\t</body>\n</html>";
 
+    private static final String chartMailHtmlStart = "<html><head><meta charset=\"UTF-8\"></head>\n<body>\n<div style=\"width:100%%\">Liczba test&#xf3;w: %s <br>\n";
+    private static final String chartMailHtmlSuccessful = "<div style=\"width:%s%%; background-color:#9DFF9D; float: left;\"><p style=\"padding: 1px;\">Testy poprawne: %s</p></div>\n";
+    private static final String chartMailHtmlFailed = "<div style=\"width:%s%%; background-color:#ff0033; float: left;\"><p style=\"padding: 1px;\">Testy b&#x142;&#x119;dne: %s</p></div>\n";
+    private static final String chartMailHtmlPending = "<div style=\"width:%s%%; background-color:#FF8C00; float: left;\"><p style=\"padding: 1px;\">Testy pomini&#x119;te: %s</p></div>\n";
+    private static final String chartMailHtmlEnd = "</div>\n</body></html>";
+    
     private static final String SUCCESSFUL = "scenariosSuccessful";
     private static final String FAILED = "scenariosFailed";
     private static final String PENDING = "scenariosPending";
+    
     private static final String EMAIL_FILE_RAPORT = "emailEmbedded.html";
+    private static final String EMAIL_FILE_CHART_RAPORT = "chartEmbedded.html";
 
     private String pathRead;
     private String pathWrite;
@@ -49,7 +57,9 @@ public class Raporter {
             raport.setDTOBasedOnStatsMap();
             raport.setDTOBasedOnHtmlMap();
             // raport.writeHtmlRaport(raport.createHtmlRaport());
-            raport.writeHtmlRaport(raport.createHtmlRaportGroupedBy());
+            
+            raport.writeHtmlRaport(raport.createHtmlRaportGroupedBy(), EMAIL_FILE_RAPORT);
+            raport.writeHtmlRaport(raport.createHtmlRaportChart(), EMAIL_FILE_CHART_RAPORT);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -128,7 +138,8 @@ public class Raporter {
         this.mapHtml.forEach((k, v) -> {
             if (!k.equalsIgnoreCase("BeforeStories") && !k.equalsIgnoreCase("AfterStories")) {
                 String failText = v.get(getIdMessageFailed(v, "(FAILED)"));
-                this.getRaportDTO(k).setMessageFailed(failText);
+                String normalize = replaceMultiple(failText, "ąćęłńóśźżĄĆĘŁŃÓŚĆŹŻ", "acelnoszzACELNOSZZ");
+                this.getRaportDTO(k).setMessageFailed(normalize);
             }
         });
     }
@@ -216,17 +227,44 @@ public class Raporter {
         return stringHtmlRaport.toString();
     }
 
-    private void writeHtmlRaport(String raport) throws IOException {
+    private void writeHtmlRaport(String raport, String fileName) throws Exception {
 
         if (raport != null && !raport.isEmpty()) {
             Path path = Paths.get(this.pathWrite);
             Files.createDirectories(path);
-            path = Paths.get(this.getPathWrite() + "\\" + this.EMAIL_FILE_RAPORT);
+            path = Paths.get(this.getPathWrite() + "\\" + fileName);
             Files.deleteIfExists(path);
             Files.write(path, raport.getBytes(StandardCharsets.UTF_8));
         } else {
-            throw new IOException("Brak danych do raportu");
+            throw new Exception("Brak danych do raportu");
         }
     }
     
+    private static String replaceMultiple(String mainText, String toBeReplaces, String forWhichWillBeReplaced) {
+        List<String> toBeReplacesList = Arrays.asList(toBeReplaces.split(""));
+        List<String> forWhichWillBeReplacedList = Arrays.asList(forWhichWillBeReplaced.split(""));
+        for (String textChar : toBeReplacesList) {
+            if (mainText.contains(textChar)) {
+                int inCharIndex = toBeReplaces.indexOf(textChar);
+                mainText = mainText.replace(textChar, forWhichWillBeReplacedList.get(inCharIndex));
+            }
+        }
+        return mainText;
+    }
+
+    private String createHtmlRaportChart() {
+
+        int success = scenariosSuccessful*100/getListRaportDTO().size();
+        int failed = scenariosFailed*100/getListRaportDTO().size();
+        int pending = scenariosPending*100/getListRaportDTO().size();
+
+        StringBuffer stringChartRaport = new StringBuffer();
+        stringChartRaport.append(String.format(chartMailHtmlStart, getListRaportDTO().size()));
+        if(success > 0) stringChartRaport.append(String.format(chartMailHtmlSuccessful, success, success));
+        if(failed > 0) stringChartRaport.append(String.format(chartMailHtmlFailed, failed, failed));
+        if(pending > 0) stringChartRaport.append(String.format(chartMailHtmlPending, pending, pending));
+        stringChartRaport.append(chartMailHtmlEnd);
+
+        return stringChartRaport.toString();
+    }
 }
