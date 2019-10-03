@@ -22,11 +22,12 @@ public class Raporter {
     private static final String embeddedMailHtmlMiddle = "\t\t\t<tr style=\"background-color:#cecccc;\">\n\t\t\t\t<td>%s</td>\n\t\t\t\t<td>%s</td>\n\t\t\t</tr>";
     private static final String embeddedMailHtmlEnd = "\t\t\t<tr align=\"right\">\n\t\t\t\t<td colspan=\"2\" style=\"font-size:12px; font-family:arial,helvetica,sans-serif;\">Copyright WAK @ ING</td>\n\t\t\t</tr>\n\t\t</table>\n\t</body>\n</html>";
 
-    private static final String chartMailHtmlStart = "<html><head><meta charset=\"UTF-8\"></head><body><table width=\"100%\">";
-    private static final String chartMailHtmlAllPending = "<tr><td>Liczba test&#xf3;w: %s (w tym pomini&#x119;te: %s)</td></tr>";
-    private static final String chartMailHtmlSuccessfulFailed = "<table width=\"100%%\"><tr><td width=\"%s%%\" bgcolor=\"#9DFF9D\">Testy poprawne: %s</td><td width=\"%s%%\" bgcolor=\"#ff0033\">Testy b&#x142;&#x119;dne: %s</td></tr></table>\n";
-    private static final String chartMailHtmlEnd = "</table></body></html>";
- 
+    private static final String chartMailHtmlStart = "<html>\n<head>\n<meta charset=\"UTF-8\">\n</head>\n<body>\n<table width=\"100%\">";
+    private static final String chartMailHtmlAllPending = "<tr>\n<td>Liczba test&#xf3;w: %s (w tym pomini&#x119;te: %s)</td>\n</tr>\n<table width=\"100%%\">\n<tr>";
+    private static final String chartMailHtmlSuccessful = "<td width=\"%s%%\" bgcolor=\"#9DFF9D\">Testy poprawne: %s</td>";
+    private static final String chartMailHtmlFailed = "<td width=\"%s%%\" bgcolor=\"#ff0033\">Testy b&#x142;&#x119;dne: %s</td>\n";
+    private static final String chartMailHtmlEnd = "</tr>\n</table>\n</table>\n</body>\n</html>";
+    
     private static final String SUCCESSFUL = "scenariosSuccessful";
     private static final String FAILED = "scenariosFailed";
     private static final String PENDING = "scenariosPending";
@@ -259,9 +260,11 @@ public class Raporter {
         StringBuffer stringChartRaport = new StringBuffer();
         stringChartRaport.append(chartMailHtmlStart);
         stringChartRaport.append(String.format(chartMailHtmlAllPending, getListRaportDTO().size(), scenariosPending));
-        if(success > 0) stringChartRaport.append(String.format(chartMailHtmlSuccessfulFailed, success, scenariosSuccessful, failed, scenariosFailed));
+        if(success > 0) stringChartRaport.append(String.format(chartMailHtmlSuccessful, success, scenariosSuccessful));
+        if(failed > 0) stringChartRaport.append(String.format(chartMailHtmlFailed, failed, scenariosFailed));
         stringChartRaport.append(chartMailHtmlEnd);
 
         return stringChartRaport.toString();
     }
+    
 }
