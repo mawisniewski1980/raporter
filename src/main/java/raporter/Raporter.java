@@ -138,7 +138,7 @@ public class Raporter {
         this.mapHtml.forEach((k, v) -> {
             if (!k.equalsIgnoreCase("BeforeStories") && !k.equalsIgnoreCase("AfterStories")) {
                 String failText = v.get(getIdMessageFailed(v, "(FAILED)"));
-                String normalize = replaceMultiple(failText, "ąćęłńóśźżĄĆĘŁŃÓŚĆŹŻ", "acelnoszzACELNOSZZ");
+                String normalize = replaceMultiple(failText, "ąćęłńóśźżĄĆĘŁŃÓŚŹŻ", "acelnoszzACELNOSZZ");
                 this.getRaportDTO(k).setMessageFailed(normalize);
             }
         });
